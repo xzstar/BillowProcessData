@@ -18,6 +18,7 @@ namespace ProcessData
     /// </summary>
     internal static class MongoDbHepler
     {
+        static MongoDatabase sDB;
         /// <summary>
         /// 获取数据库实例对象
         /// </summary>
@@ -26,8 +27,13 @@ namespace ProcessData
         /// <returns>数据库实例对象</returns>
         private static MongoDatabase GetDatabase(string connectionString, string dbName)
         {
-            MongoClient client = new MongoClient(connectionString);
-            return client.GetServer().GetDatabase(dbName);
+            if (sDB == null)
+            {
+                MongoClient client = new MongoClient(connectionString);
+                sDB = client.GetServer().GetDatabase(dbName);
+            }
+
+            return sDB;
         }
 
         #region 新增
@@ -48,7 +54,7 @@ namespace ProcessData
             }
             var db = GetDatabase(connectionString, dbName);
             var collection = db.GetCollection<T>(collectionName);
-            collection.Insert(model);
+            WriteConcernResult result = collection.Insert(model);
         }
 
         #endregion
@@ -187,7 +193,7 @@ namespace ProcessData
     {
 
         [Serializable]
-        public class UnitData   
+        /*public class UnitData   
         {
             //Todo datetime 加上日期
             public string datetime;
@@ -196,9 +202,9 @@ namespace ProcessData
             public double open;
             public double close;
 
-        }
+        }*/
 
-        /*public class UnitData
+        public class UnitData
         {
             public ObjectId Id { get; set; }
             public string datetime { get; set; }
@@ -206,7 +212,8 @@ namespace ProcessData
             public double low { get; set; }
             public double open { get; set; }
             public double close { get; set; }
-        }*/
+            public double avg_480 { get; set; }
+        }
 
         /// <summary>
         /// 数据库连接
@@ -478,9 +485,9 @@ namespace ProcessData
             string fileNameSerialize = buildJsonFilePath(instrument, instrument_15m);
             string jsonString = JsonConvert.SerializeObject(unitDataList);
             File.WriteAllText(fileNameSerialize, jsonString, Encoding.UTF8);
-            /*foreach(UnitData data in unitDataList) {
+            foreach(UnitData data in unitDataList) {
                 MongoDbHepler.Insert<UnitData>(connectionString, dbName, instrument + instrument_15m, data);
-            }*/
+            }
             
         }
 

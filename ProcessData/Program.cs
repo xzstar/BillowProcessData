@@ -98,7 +98,7 @@ namespace ProcessData
         /// <param name="id">ID</param>
         /// <returns>数据对象</returns>
         public static T GetById<T>(string connectionString, string dbName, string collectionName, ObjectId id)
-            
+
         {
             var db = GetDatabase(connectionString, dbName);
             var collection = db.GetCollection<T>(collectionName);
@@ -115,7 +115,7 @@ namespace ProcessData
         /// <param name="query">查询条件</param>
         /// <returns>数据对象</returns>
         public static T GetOneByCondition<T>(string connectionString, string dbName, string collectionName, IMongoQuery query)
-   
+
         {
             var db = GetDatabase(connectionString, dbName);
             var collection = db.GetCollection<T>(collectionName);
@@ -132,7 +132,7 @@ namespace ProcessData
         /// <param name="query">查询条件</param>
         /// <returns>数据对象集合</returns>
         public static List<T> GetManyByCondition<T>(string connectionString, string dbName, string collectionName, IMongoQuery query)
-            
+
         {
             var db = GetDatabase(connectionString, dbName);
             var collection = db.GetCollection<T>(collectionName);
@@ -148,7 +148,7 @@ namespace ProcessData
         /// <param name="collectionName">集合名称</param>
         /// <returns>数据对象集合</returns>
         public static List<T> GetAll<T>(string connectionString, string dbName, string collectionName)
-           
+
         {
             var db = GetDatabase(connectionString, dbName);
             var collection = db.GetCollection<T>(collectionName);
@@ -248,9 +248,9 @@ namespace ProcessData
             foreach (FileInfo file in folder.GetFiles("*.csv"))
             {
                 Console.WriteLine(file.FullName);
-                instrument = file.Name.Substring(0,file.Name.IndexOf("_"));
-                start(file.FullName );
-                
+                instrument = file.Name.Substring(0, file.Name.IndexOf("_"));
+                start(file.FullName);
+                unitDataList.Clear();
 
             }
 
@@ -266,7 +266,7 @@ namespace ProcessData
         }
         private static bool isNextStartMin(DateTime dt)
         {
-            DateTime newDt = new DateTime(dt.Year,dt.Month,dt.Day,dt.Hour,dt.Minute,dt.Second);
+            DateTime newDt = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second);
             newDt = newDt.AddMinutes(1);
             return isStartMin(newDt);
         }
@@ -313,7 +313,7 @@ namespace ProcessData
             double open = 0;
             double high = Double.MinValue;
             double low = Double.MaxValue;
-            DateTime curBarDateTime = DateTime.Now ;
+            DateTime curBarDateTime = DateTime.Now;
             DataTable dt = new DataTable();
             dt.Columns.Add(new DataColumn("日期"));
             dt.Columns.Add(new DataColumn("时间"));
@@ -333,7 +333,7 @@ namespace ProcessData
 
                 //strLine = Common.ConvertStringUTF8(strLine, encoding);
                 //strLine = Common.ConvertStringUTF8(strLine);
-                
+
                 //Console.WriteLine(strLine);
                 {
                     char split = '\t';
@@ -350,8 +350,8 @@ namespace ProcessData
                     result = double.TryParse(aryLine[2], out curOpen);
                     if (result == false || curOpen <= 0)
                         continue;
-                        
-                    result = double.TryParse(aryLine[3], out curHigh);  
+
+                    result = double.TryParse(aryLine[3], out curHigh);
                     if (result == false || curHigh <= 0)
                         continue;
 
@@ -385,8 +385,8 @@ namespace ProcessData
                     int hourmin = (int)(curTime * 10000);
                     int min = hourmin % 100;
 
-                    DateTime datetime = new DateTime(year,month,day,hour,min,0);
-                    
+                    DateTime datetime = new DateTime(year, month, day, hour, min, 0);
+
                     if (isStartMin(datetime))
                     {
                         Console.WriteLine("start min " + strLine);
@@ -404,9 +404,9 @@ namespace ProcessData
                         curBarDateTime = datetime;
 
                     }
-                    else if(dr == null)
+                    else if (dr == null)
                     {
-                        Console.WriteLine("lost time "+ strLine);
+                        Console.WriteLine("lost time " + strLine);
                         dr = dt.NewRow();
                         dr["日期"] = date;
                         dr["时间"] = hour * 100 + min;
@@ -418,12 +418,12 @@ namespace ProcessData
                         low = curLow;
                         open = curOpen;
                     }
-                    if(curHigh> high)
+                    if (curHigh > high)
                     {
                         high = curHigh;
                     }
 
-                    if(curLow < low)
+                    if (curLow < low)
                     {
                         low = curLow;
                     }
@@ -449,11 +449,11 @@ namespace ProcessData
                         dr = null;
                     }
 
-                    
+
                 }
                 strLastLine = strLine;
             }
-            if(dr !=null)
+            if (dr != null)
             {
                 dr["最高价"] = high;
                 dr["最低价"] = low;
@@ -479,16 +479,17 @@ namespace ProcessData
 
         private static void saveJson()
         {
-           
+
             if (unitDataList == null)
                 return;
             string fileNameSerialize = buildJsonFilePath(instrument, instrument_15m);
             string jsonString = JsonConvert.SerializeObject(unitDataList);
             File.WriteAllText(fileNameSerialize, jsonString, Encoding.UTF8);
-            foreach(UnitData data in unitDataList) {
+            foreach (UnitData data in unitDataList)
+            {
                 MongoDbHepler.Insert<UnitData>(connectionString, dbName, instrument + instrument_15m, data);
             }
-            
+
         }
 
     }
@@ -522,10 +523,10 @@ namespace ProcessData
                     data += ",";
                 }
             }
-                sw.WriteLine(data);
+            sw.WriteLine(data);
             //写出各行数据
             for (int i = 0; i < dt.Rows.Count; i++)
-            {       
+            {
                 data = "";
                 for (int j = 0; j < dt.Columns.Count; j++)
                 {
@@ -619,4 +620,3 @@ namespace ProcessData
     }
 }
 
-    
